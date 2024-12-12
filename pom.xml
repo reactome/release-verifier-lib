@@ -36,7 +36,7 @@
     <scm>
         <connection>scm:git:git://github.com/reactome/release-verifier-lib.git</connection>
         <developerConnection>scm:git:ssh://github.com:reactome/release-verifier-lib.git</developerConnection>
-        <url>https://github.com/reactome/release-verifier-lib/tree/master</url>
+        <url>https://github.com/reactome/release-verifier-lib/tree/main</url>
     </scm>
 
     <properties>
