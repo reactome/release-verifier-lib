@@ -1,5 +1,8 @@
 package org.reactome.release.verifier;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -42,6 +45,44 @@ public class FileUtils {
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    /**
+     * Extracts a gzipped tar file to a given location.
+     *
+     * @param tgzFilePath Path to the tar gzipped file to extract
+     * @param outputDir Path to the location of where to extract
+     * @throws IOException Thrown if unable to gunzip or extract the tar file
+     */
+    public static void untarTgzFile(String tgzFilePath, String outputDir) throws IOException {
+        try (FileInputStream fis = new FileInputStream(tgzFilePath);
+             GzipCompressorInputStream gis = new GzipCompressorInputStream(fis);
+             TarArchiveInputStream tis = new TarArchiveInputStream(gis)) {
+
+            TarArchiveEntry entry;
+            while ((entry = tis.getNextTarEntry()) != null) {
+                File outputFile = new File(outputDir, entry.getName());
+
+                if (entry.isDirectory()) {
+                    if (!outputFile.exists() && !outputFile.mkdirs()) {
+                        throw new IOException("Failed to create directory: " + outputFile);
+                    }
+                } else {
+                    File parent = outputFile.getParentFile();
+                    if (!parent.exists() && !parent.mkdirs()) {
+                        throw new IOException("Failed to create directory: " + parent);
+                    }
+
+                    try (FileOutputStream fos = new FileOutputStream(outputFile)) {
+                        byte[] buffer = new byte[1024];
+                        int len;
+                        while ((len = tis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
