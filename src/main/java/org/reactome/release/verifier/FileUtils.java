@@ -12,6 +12,7 @@ import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
@@ -177,6 +178,58 @@ public class FileUtils {
             ResponseTransformer.toFile(fileKeyPath.getFileName())
         );
         s3.close();
+    }
+
+    /**
+     * Downloads a meta-data file describing the name and size in bytes of files created for a particular Reactome
+     * version and release step.  The file is saved as "files_and_sizes.txt".
+     *
+     * @param versionNumber Number of the Reactome version
+     * @param folderName Name of the sub-folder containing stored data for a release step
+     */
+    public static void downloadFilesAndSizesListFromS3(int versionNumber, String folderName) {
+        if (Files.notExists(Paths.get(getFilesAndSizesListFileName()))) {
+            downloadFileFromS3("reactome", getFilesAndSizesListPathInS3(versionNumber, folderName));
+        }
+    }
+
+    /**
+     * Returns the name of the file describing the file names and sizes of a release step
+     * @return
+     */
+    public static String getFilesAndSizesListFileName() {
+        return "files_and_sizes.txt";
+    }
+
+
+    /**
+     * Returns a map of file name to file size in bytes for a release step's created files.
+     *
+     * @return A map of file name to file size in bytes
+     * @throws IOException Thrown if unable to read the lines of the meta-data file
+     * @see FileUtils::downloadFilesAndSizesListFromS3
+     */
+    public static Map<String, Long> getExpectedFileNameToSizeMap() throws IOException {
+        return Files.lines(Paths.get(getFilesAndSizesListFileName()))
+            .map(line -> line.split(" "))
+            .collect(Collectors.toMap(
+                FileUtils::getFileName,
+                FileUtils::getFileSizeInBytes
+            ));
+    }
+
+    private static String getFileName(String[] columns) {
+        return columns[1].replace("./", "");
+    }
+
+    private static long getFileSizeInBytes(String[] columns) {
+        return Long.parseLong(columns[0]);
+    }
+
+    private static String getFilesAndSizesListPathInS3(int versionNumber, String folderName) {
+        return String.format("private/releases/%d/%s/downloads/data/%s",
+            versionNumber ,getFilesAndSizesListFileName()
+        );
     }
 
     private static void downloadFile(S3Client s3, String bucketName, String key, String folderKey) {
