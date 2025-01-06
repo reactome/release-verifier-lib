@@ -16,7 +16,7 @@ public class Results {
         this.errorMessages = new ArrayList<>();
     }
 
-    public void report() {
+    public void reportInfoMessages() {
         System.out.println("Info Messages:");
         System.out.println();
         for (String infoMessage : this.infoMessages) {
