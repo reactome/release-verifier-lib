@@ -195,7 +195,7 @@ public class FileUtils {
 
     /**
      * Returns the name of the file describing the file names and sizes of a release step
-     * @return
+     * @return Name of the file
      */
     public static String getFilesAndSizesListFileName() {
         return "files_and_sizes.txt";
@@ -211,7 +211,7 @@ public class FileUtils {
      */
     public static Map<String, Long> getExpectedFileNameToSizeMap() throws IOException {
         return Files.lines(Paths.get(getFilesAndSizesListFileName()))
-            .map(line -> line.split(" "))
+            .map(line -> line.split("\t"))
             .collect(Collectors.toMap(
                 FileUtils::getFileName,
                 FileUtils::getFileSizeInBytes
@@ -219,7 +219,7 @@ public class FileUtils {
     }
 
     private static String getFileName(String[] columns) {
-        return columns[1].replace("./", "");
+        return columns[1];
     }
 
     private static long getFileSizeInBytes(String[] columns) {
