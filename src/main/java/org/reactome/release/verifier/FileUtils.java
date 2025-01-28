@@ -207,7 +207,7 @@ public class FileUtils {
      *
      * @return A map of file name to file size in bytes
      * @throws IOException Thrown if unable to read the lines of the meta-data file
-     * @see FileUtils::downloadFilesAndSizesListFromS3
+     * @see #downloadFilesAndSizesListFromS3
      */
     public static Map<String, Long> getExpectedFileNameToSizeMap() throws IOException {
         return Files.lines(Paths.get(getFilesAndSizesListFileName()))
