@@ -34,6 +34,10 @@ public class Results {
         System.err.println();
     }
 
+    public boolean hasInfoMessages() {
+        return this.infoMessages != null && !this.infoMessages.isEmpty();
+    }
+
     public boolean hasErrors() {
         return this.errorMessages != null && !this.errorMessages.isEmpty();
     }

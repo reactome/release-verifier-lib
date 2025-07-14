@@ -61,9 +61,14 @@ public class DefaultVerifier implements Verifier {
         return results;
     }
 
+    @Override
+    public String getStepName() {
+        return this.stepName;
+    }
+
     private List<String> verifyStepFolderExists() {
         return !Files.exists(Paths.get(this.outputDirectory)) ?
-            Arrays.asList(this.outputDirectory + " does not exist; Expected " + getStepName() + "output files at this location") :
+            Arrays.asList(this.outputDirectory + " does not exist; Expected " + getStepName() + " output files at this location") :
             new ArrayList<>();
     }
 
@@ -126,9 +131,5 @@ public class DefaultVerifier implements Verifier {
 
     private String getFilesAndSizesListName() {
         return "files_and_sizes.txt";
-    }
-
-    private String getStepName() {
-        return this.stepName;
     }
 }

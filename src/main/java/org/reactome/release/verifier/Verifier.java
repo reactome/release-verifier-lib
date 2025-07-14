@@ -12,11 +12,17 @@ public interface Verifier {
     default void run() throws IOException {
         Results results = verifyStepRanCorrectly();
         if (!results.hasErrors()) {
-            results.reportInfoMessages();
+            System.out.println(getStepName() + " ran correctly!");
+
+            if (results.hasInfoMessages()) {
+                results.reportInfoMessages();
+            }
         } else {
             results.reportErrors();
             System.exit(1);
         }
     }
     Results verifyStepRanCorrectly() throws IOException;
+
+    String getStepName();
 }
