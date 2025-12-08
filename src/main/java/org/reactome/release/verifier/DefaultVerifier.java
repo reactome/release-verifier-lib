@@ -21,6 +21,7 @@ import static org.reactome.release.verifier.TooSmallFile.currentFileIsSmaller;
 public class DefaultVerifier implements Verifier {
     private String outputDirectory;
     private int releaseNumber;
+    private int fileSizePercentDropTolerance;
 
     private String stepName;
 
@@ -34,8 +35,9 @@ public class DefaultVerifier implements Verifier {
         try {
             jsap = new SimpleJSAP(Verifier.class.getName(), "Verify " + getStepName() + " ran correctly",
                 new Parameter[]{
-                    new FlaggedOption("output", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.REQUIRED, 'o', "output", "The folder where the results are written to."),
-                    new FlaggedOption("releaseNumber", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, JSAP.REQUIRED, 'r', "releaseNumber", "The most recent Reactome release version")
+                    new FlaggedOption("output", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.REQUIRED, 'o', "output", "The folder to where the results are written"),
+                    new FlaggedOption("releaseNumber", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, JSAP.REQUIRED, 'r', "releaseNumber", "The most recent Reactome release version"),
+                    new FlaggedOption("sizeDropTolerance", JSAP.INTEGER_PARSER, "10", JSAP.NOT_REQUIRED, 'd', "sizeDropTolerance", "The percentage drop in expected files' sizes allowed before an error is produced")
                 }
             );
         } catch (JSAPException e) {
@@ -47,6 +49,7 @@ public class DefaultVerifier implements Verifier {
 
         this.outputDirectory = config.getString("output");
         this.releaseNumber = config.getInt("releaseNumber");
+        this.fileSizePercentDropTolerance = config.getInt("sizeDropTolerance");
     }
 
     @Override
