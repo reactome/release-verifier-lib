@@ -1,10 +1,9 @@
 package org.reactome.release.verifier;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.reactome.release.verifier.FileUtils.getExpectedFileNameToSizeMap;
+import static org.reactome.release.verifier.FileUtils.*;
 
 /**
  * @author Joel Weiser (joel.weiser@oicr.on.ca)
@@ -21,11 +20,19 @@ public class TooSmallFile {
         this.expectedFileSizeInBytes = getExpectedFileSize(currentFileNamePath);
     }
 
-    public static boolean currentFileIsSmaller(Path currentFileNamePath) throws IOException {
+    public static boolean currentFileTooSmall(Path currentFileNamePath, int dropTolerancePercentage)
+        throws IOException {
+
+        if (dropTolerancePercentage < 0 || dropTolerancePercentage > 100) {
+            throw new IllegalStateException("Drop tolerance percentage must be between 0 and 100");
+        }
+
         long actualFileSizeInBytes = getCurrentFileSize(currentFileNamePath);
         long expectedFileSizeInBytes = getExpectedFileSize(currentFileNamePath);
 
-        return actualFileSizeInBytes < expectedFileSizeInBytes;
+        long minimumAcceptableFileSizeInBytes = expectedFileSizeInBytes * ((100 - dropTolerancePercentage) / 100);
+
+        return actualFileSizeInBytes < minimumAcceptableFileSizeInBytes;
     }
 
     @Override
@@ -57,21 +64,5 @@ public class TooSmallFile {
 
     private double getPercentDifferenceInFileSize() {
         return getDifferenceInFileSize() * 100d / getExpectedFileSizeInBytes();
-    }
-
-    private static long getCurrentFileSize(Path currentFileNamePath) {
-        try {
-            return Files.size(currentFileNamePath);
-        } catch (IOException e) {
-            // TODO: Add logger (warn?) statement for file that could not be sized
-            return 0L;
-        }
-    }
-
-    private static long getExpectedFileSize(Path currentFileNamePath) throws IOException {
-        long expectedFileSize = getExpectedFileNameToSizeMap().computeIfAbsent(
-            currentFileNamePath.getFileName().toString(), k -> 0L);
-        //System.out.println(currentFileNamePath + "\t" + expectedFileSize);
-        return expectedFileSize;
     }
 }

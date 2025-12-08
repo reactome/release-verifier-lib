@@ -218,6 +218,22 @@ public class FileUtils {
             ));
     }
 
+    public static long getCurrentFileSize(Path currentFileNamePath) {
+        try {
+            return Files.size(currentFileNamePath);
+        } catch (IOException e) {
+            // TODO: Add logger (warn?) statement for file that could not be sized
+            return 0L;
+        }
+    }
+
+    public static long getExpectedFileSize(Path currentFileNamePath) throws IOException {
+        long expectedFileSize = getExpectedFileNameToSizeMap().computeIfAbsent(
+            currentFileNamePath.getFileName().toString(), k -> 0L);
+        //System.out.println(currentFileNamePath + "\t" + expectedFileSize);
+        return expectedFileSize;
+    }
+
     private static String getFileName(String[] columns) {
         return columns[1];
     }
