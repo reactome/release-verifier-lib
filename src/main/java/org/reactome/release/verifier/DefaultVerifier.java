@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.reactome.release.verifier.FileUtils.downloadFileFromS3;
-import static org.reactome.release.verifier.TooSmallFile.currentFileIsSmaller;
 
 /**
  * @author Joel Weiser (joel.weiser@oicr.on.ca)
@@ -54,14 +53,15 @@ public class DefaultVerifier implements Verifier {
 
     @Override
     public Results verifyStepRanCorrectly() throws IOException {
-        Results results = new Results();
+        Results finalResults = new Results();
 
-        results.addErrorMessages(verifyStepFolderExists());
-        if (!results.hasErrors()) {
-            results.addErrorMessages(verifyStepFilesExist());
-            results.addErrorMessages(verifyStepFileSizesComparedToPreviousRelease());
+        finalResults.mergeResults(verifyStepFolderExists());
+        if (!finalResults.hasErrors()) {
+            finalResults.mergeResults(verifyStepFilesExist());
+            finalResults.mergeResults(verifyStepFileSizesComparedToPreviousRelease());
         }
-        return results;
+
+        return finalResults;
     }
 
     @Override
@@ -69,13 +69,26 @@ public class DefaultVerifier implements Verifier {
         return this.stepName;
     }
 
-    private List<String> verifyStepFolderExists() {
-        return !Files.exists(Paths.get(this.outputDirectory)) ?
-            Arrays.asList(this.outputDirectory + " does not exist; Expected " + getStepName() + " output files at this location") :
-            new ArrayList<>();
+    public String getOutputDirectory() {
+        return this.outputDirectory;
     }
 
-    private List<String> verifyStepFilesExist() throws IOException {
+    public int getReleaseNumber() {
+        return this.releaseNumber;
+    }
+
+    private Results verifyStepFolderExists() {
+        List<String> errorMessages = !Files.exists(Paths.get(this.outputDirectory)) ?
+            Arrays.asList(this.outputDirectory + " does not exist; " +
+                "Expected " + getStepName() + " output files at this location") :
+            new ArrayList<>();
+
+        Results results = new Results();
+        results.addErrorMessages(errorMessages);
+        return results;
+    }
+
+    private Results verifyStepFilesExist() throws IOException {
         List<String> errorMessages = new ArrayList<>();
 
         downloadFilesAndSizesListFromS3(getPreviousReleaseNumber());
@@ -86,24 +99,29 @@ public class DefaultVerifier implements Verifier {
             }
         }
 
-        return errorMessages;
+        Results results = new Results();
+        results.addErrorMessages(errorMessages);
+        return results;
     }
 
-    private List<String> verifyStepFileSizesComparedToPreviousRelease() throws IOException {
+    private Results verifyStepFileSizesComparedToPreviousRelease() throws IOException {
         downloadFilesAndSizesListFromS3(getPreviousReleaseNumber());
-        List<TooSmallFile> tooSmallFiles = new ArrayList<>();
+
+        Results results = new Results();
         for (String fileName : getFileNames()) {
             Path filePath = Paths.get(this.outputDirectory, fileName);
 
-            if (Files.exists(filePath) && currentFileIsSmaller(filePath)) {
-                tooSmallFiles.add(new TooSmallFile(filePath));
+            if (Files.exists(filePath)) {
+                FileSizer fileSizer = new FileSizer(filePath);
+                if (fileSizer.currentFileTooSmall(this.fileSizePercentDropTolerance)) {
+                    results.addErrorMessage(fileSizer.toString());
+                } else {
+                    results.addInfoMessage(fileSizer.toString());
+                }
             }
         }
 
-        return tooSmallFiles
-            .stream()
-            .map(TooSmallFile::toString)
-            .collect(Collectors.toList());
+        return results;
     }
 
     private List<String> getFileNames() throws IOException {
