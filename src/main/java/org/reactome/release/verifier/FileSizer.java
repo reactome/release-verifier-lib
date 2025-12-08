@@ -9,26 +9,22 @@ import static org.reactome.release.verifier.FileUtils.*;
  * @author Joel Weiser (joel.weiser@oicr.on.ca)
  * Created 11/24/2024
  */
-public class TooSmallFile {
+public class FileSizer {
     private Path currentFileNamePath;
     private long expectedFileSizeInBytes;
     private long actualFileSizeInBytes;
 
-    public TooSmallFile(Path currentFileNamePath) throws IOException {
+    public FileSizer(Path currentFileNamePath) throws IOException {
         this.currentFileNamePath = currentFileNamePath;
         this.actualFileSizeInBytes = getCurrentFileSize(currentFileNamePath);
         this.expectedFileSizeInBytes = getExpectedFileSize(currentFileNamePath);
     }
 
-    public static boolean currentFileTooSmall(Path currentFileNamePath, int dropTolerancePercentage)
-        throws IOException {
+    public boolean currentFileTooSmall(int dropTolerancePercentage) {
 
         if (dropTolerancePercentage < 0 || dropTolerancePercentage > 100) {
-            throw new IllegalStateException("Drop tolerance percentage must be between 0 and 100");
+            throw new IllegalArgumentException("Drop tolerance percentage must be between 0 and 100");
         }
-
-        long actualFileSizeInBytes = getCurrentFileSize(currentFileNamePath);
-        long expectedFileSizeInBytes = getExpectedFileSize(currentFileNamePath);
 
         long minimumAcceptableFileSizeInBytes = expectedFileSizeInBytes * ((100 - dropTolerancePercentage) / 100);
 
@@ -37,7 +33,7 @@ public class TooSmallFile {
 
     @Override
     public String toString() {
-        return String.format("%s (expected %d bytes but got %d bytes - decrease of %d bytes (%.2f%%))",
+        return String.format("%s (expected %d bytes and got %d bytes - difference of %d bytes (%.2f%%))",
             getCurrentFileNamePath(),
             getExpectedFileSizeInBytes(),
             getActualFileSizeInBytes(),
@@ -59,7 +55,7 @@ public class TooSmallFile {
     }
 
     private long getDifferenceInFileSize() {
-        return getExpectedFileSizeInBytes() - getActualFileSizeInBytes();
+        return getActualFileSizeInBytes() - getExpectedFileSizeInBytes();
     }
 
     private double getPercentDifferenceInFileSize() {
