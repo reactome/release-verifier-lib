@@ -50,6 +50,11 @@ public class Results {
         return this.errorMessages;
     }
 
+    public void mergeResults(Results additionalResults) {
+        this.addInfoMessages(additionalResults.getInfoMessages());
+        this.addErrorMessages(additionalResults.getErrorMessages());
+    }
+
     public void addInfoMessages(List<String> infoMessages) {
         if (infoMessages == null) {
             return;
