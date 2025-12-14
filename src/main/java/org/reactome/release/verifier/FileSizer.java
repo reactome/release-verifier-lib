@@ -26,7 +26,8 @@ public class FileSizer {
             throw new IllegalArgumentException("Drop tolerance percentage must be between 0 and 100");
         }
 
-        long minimumAcceptableFileSizeInBytes = expectedFileSizeInBytes * ((100 - dropTolerancePercentage) / 100);
+        long minimumAcceptableFileSizeInBytes =
+            Math.round(expectedFileSizeInBytes * ((100 - dropTolerancePercentage) / 100.0d));
 
         return actualFileSizeInBytes < minimumAcceptableFileSizeInBytes;
     }
