@@ -1,6 +1,7 @@
 package org.reactome.release.verifier;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author Joel Weiser (joel.weiser@oicr.on.ca)
@@ -8,7 +9,8 @@ import java.io.IOException;
  */
 public interface Verifier {
 
-    void parseCommandLineArgs(String[] args);
+    ParsedArguments parseCommandLineArgs(String[] args);
+
     default void run() throws IOException {
         Results results = verifyStepRanCorrectly();
         if (!results.hasErrors()) {
@@ -22,6 +24,9 @@ public interface Verifier {
             System.exit(1);
         }
     }
+
+    List<CommandLineParameter> getCommandLineParameters();
+
     Results verifyStepRanCorrectly() throws IOException;
 
     String getStepName();

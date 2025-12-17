@@ -29,26 +29,23 @@ public class DefaultVerifier implements Verifier {
     }
 
     @Override
-    public void parseCommandLineArgs(String[] args) {
-        SimpleJSAP jsap;
-        try {
-            jsap = new SimpleJSAP(Verifier.class.getName(), "Verify " + getStepName() + " ran correctly",
-                new Parameter[]{
-                    new FlaggedOption("output", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, JSAP.REQUIRED, 'o', "output", "The folder to where the results are written"),
-                    new FlaggedOption("releaseNumber", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, JSAP.REQUIRED, 'r', "releaseNumber", "The most recent Reactome release version"),
-                    new FlaggedOption("sizeDropTolerance", JSAP.INTEGER_PARSER, "10", JSAP.NOT_REQUIRED, 'd', "sizeDropTolerance", "The percentage drop in expected files' sizes allowed before an error is produced")
-                }
-            );
-        } catch (JSAPException e) {
-            throw new RuntimeException("Unable to create simple JSAP", e);
-        }
-
-        JSAPResult config = jsap.parse(args);
-        if (jsap.messagePrinted()) System.exit(1);
+    public ParsedArguments parseCommandLineArgs(String[] args) {
+        JSAPResult config = getCommandLineArgumentsConfig(args);
 
         this.outputDirectory = config.getString("output");
         this.releaseNumber = config.getInt("releaseNumber");
         this.fileSizePercentDropTolerance = config.getInt("sizeDropTolerance");
+
+        return new JsapParsedArguments(config);
+    }
+
+    @Override
+    public List<CommandLineParameter> getCommandLineParameters() {
+        return Arrays.asList(
+            CommandLineParameter.create("output", OptionType.STRING, "", CommandLineParameter.IS_REQUIRED, 'o', "output", "The folder to where the results are written"),
+            CommandLineParameter.create("releaseNumber", OptionType.INTEGER, "", CommandLineParameter.IS_REQUIRED, 'r', "releaseNumber", "The most recent Reactome release version"),
+            CommandLineParameter.create("sizeDropTolerance", OptionType.INTEGER, "10", CommandLineParameter.NOT_REQUIRED, 'd', "sizeDropTolerance", "The percentage drop in expected files' sizes allowed before an error is produced")
+        );
     }
 
     @Override
@@ -75,6 +72,27 @@ public class DefaultVerifier implements Verifier {
 
     public int getReleaseNumber() {
         return this.releaseNumber;
+    }
+
+    private JSAPResult getCommandLineArgumentsConfig(String[] args) {
+        Parameter[] parameters = getCommandLineParameters().stream()
+            .map(JsapParameterMapper::toJsapParameter)
+            .toArray(Parameter[]::new);
+
+        SimpleJSAP jsap = prepareCommandLineArguments(parameters);
+        JSAPResult config = jsap.parse(args);
+        if (jsap.messagePrinted()) System.exit(1);
+        return config;
+    }
+
+    private SimpleJSAP prepareCommandLineArguments(Parameter[] parameters) {
+        SimpleJSAP jsap;
+        try {
+            jsap = new SimpleJSAP(Verifier.class.getName(), "Verify " + getStepName() + " ran correctly", parameters);
+        } catch (JSAPException e) {
+            throw new RuntimeException("Unable to create simple JSAP", e);
+        }
+        return jsap;
     }
 
     private Results verifyStepFolderExists() {
