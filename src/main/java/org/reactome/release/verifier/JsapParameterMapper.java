@@ -51,7 +51,7 @@ final class JsapParameterMapper {
 	}
 
 	private static String defaultValue(CommandLineParameter option) {
-		return option.getDefaultValue() == null
+		return option.getDefaultValue().isEmpty()
 			? JSAP.NO_DEFAULT
 			: option.getDefaultValue();
 	}

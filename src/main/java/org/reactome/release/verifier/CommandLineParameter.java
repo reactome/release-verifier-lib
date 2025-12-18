@@ -32,7 +32,7 @@ public class CommandLineParameter {
 	}
 
 	public String getDefaultValue() {
-		return defaultValue;
+		return defaultValue != null ? defaultValue : "";
 	}
 
 	public boolean isRequired() {
