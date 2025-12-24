@@ -67,6 +67,10 @@ public class DefaultVerificationLogic {
 		);
 	}
 
+	public String getOutputDirectory() {
+		return this.outputDirectory;
+	}
+
 	private JSAPResult getCommandLineArgumentsConfig(String[] args, List<CommandLineParameter> params) {
 		Parameter[] jsapParams = params.stream()
 			.map(JsapParameterMapper::toJsapParameter)
@@ -133,7 +137,6 @@ public class DefaultVerificationLogic {
 
 		return results;
 	}
-
 
 	private List<String> getFileNames() throws IOException {
 		return Files.lines(Paths.get(getFilesAndSizesListName()))
