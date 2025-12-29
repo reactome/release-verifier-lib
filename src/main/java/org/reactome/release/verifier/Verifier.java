@@ -14,7 +14,7 @@ public interface Verifier {
     default void run() throws IOException {
         Results results = verifyStepRanCorrectly();
         if (!results.hasErrors()) {
-            System.out.println(getStepName() + " ran correctly!");
+            System.out.println("The " + getStepName() + " step ran correctly!");
 
             if (results.hasInfoMessages()) {
                 results.reportInfoMessages();
