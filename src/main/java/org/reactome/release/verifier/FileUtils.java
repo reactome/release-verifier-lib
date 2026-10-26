@@ -195,7 +195,7 @@ public class FileUtils {
 
     /**
      * Returns the name of the file describing the file names and sizes of a release step
-     * @return Name of the file
+     * @return Name of file describing file names and sizes
      */
     public static String getFilesAndSizesListFileName() {
         return "files_and_sizes.txt";
@@ -207,7 +207,7 @@ public class FileUtils {
      *
      * @return A map of file name to file size in bytes
      * @throws IOException Thrown if unable to read the lines of the meta-data file
-     * @see #downloadFilesAndSizesListFromS3
+     * @see downloadFilesAndSizesListFromS3
      */
     public static Map<String, Long> getExpectedFileNameToSizeMap() throws IOException {
         return Files.lines(Paths.get(getFilesAndSizesListFileName()))

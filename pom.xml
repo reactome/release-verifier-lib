@@ -26,6 +26,7 @@
 
     <developers>
         <developer>
+            <id>jweiser</id>
             <name>Joel Weiser</name>
             <email>joel.weiser@oicr.on.ca</email>
             <organization>Ontario Institute for Cancer Research</organization>
@@ -69,12 +70,6 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>s3</artifactId>
             <version>2.27.9</version>
@@ -90,6 +85,13 @@
             <groupId>com.martiansoftware</groupId>
             <artifactId>jsap</artifactId>
             <version>2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -152,11 +154,21 @@
                             <goal>sign</goal>
                         </goals>
                         <configuration>
-                            <keyname>${gpg.key}</keyname>
-                            <passphraseServerId>${gpg.key}</passphraseServerId>
+                            <gpgExecutable>gpg</gpgExecutable> <!-- Explicitly specify the GPG executable -->
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- allows 'mvn deploy' command to stage a release to Sonatype -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.12.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                </configuration>
             </plugin>
 
             <!-- executes unit tests -->
