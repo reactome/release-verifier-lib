@@ -31,13 +31,13 @@
             <organizationUrl>https://oicr.on.ca</organizationUrl>
         </developer>
     </developers>
-
+    
     <scm>
-        <connection>scm:git:git://github.com/reactome/release-verifier-lib.git</connection>
-        <developerConnection>scm:git:ssh://github.com:reactome/release-verifier-lib.git</developerConnection>
+        <connection>scm:git:ssh://git@github.com/reactome/release-verifier-lib.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/reactome/release-verifier-lib.git</developerConnection>
         <url>https://github.com/reactome/release-verifier-lib/tree/main</url>
-      <tag>v1.0.0</tag>
-  </scm>
+        <tag>v1.0.0</tag>
+    </scm>
 
     <properties>
         <!-- build -->
